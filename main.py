@@ -1,16 +1,20 @@
-# This is a sample Python script.
+import os
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+load_dotenv()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+model = os.getenv("LLM_MODEL")
+host = os.getenv("LLM_HOST")
+key = os.getenv("OPENAI_API_KEY")
+
+chat = ChatOpenAI(
+    model=model,
+    base_url=host,
+    api_key=key,
+)
+
+response = chat.invoke("hello")
+print(response.content)
