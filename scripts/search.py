@@ -1,25 +1,31 @@
-from dotenv import load_dotenv
-
-load_dotenv()
+import os
 
 from rag.ingestion import get_embeddings
 
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+QDRANT_HOST = os.getenv("QDRANT_HOST")
+QDRANT_PORT = os.getenv("QDRANT_PORT")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME")
+
 
 def main(question):
 
     client = QdrantClient(
-        host="localhost",
-        port=6333
+        host=QDRANT_HOST,
+        port=QDRANT_PORT
     )
 
     embeddings = get_embeddings()
 
     vectorstore = QdrantVectorStore(
         client=client,
-        collection_name="corporate_docs",
+        collection_name=COLLECTION_NAME,
         embedding=embeddings,
     )
 
@@ -37,7 +43,8 @@ def main(question):
         print(doc.page_content[:300])
         print("-" * 80)
 
+    return results
 
 if __name__ == "__main__":
     user_question = input("Введите свой вопрос: ")
-    main(user_question)
+    print(main(user_question))

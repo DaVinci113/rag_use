@@ -31,7 +31,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-ai/nomic-embed-text-v1.5")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "unsloth/bge-small-en-v1.5")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "corporate_docs")
+QDRANT_PORT = os.getenv("QDRANT_PORT", 6333)
+QDRANT_HOST = os.getenv("QDRANT_HOST", "localhost")
 
 
 def load_document(file_path: str) -> list[Document]:
@@ -180,7 +183,7 @@ def get_embeddings():
     )
 
 
-def index_documents(chunks: list[Document], collection_name: str = "corporate_docs"):
+def index_documents(chunks: list[Document], collection_name: str = COLLECTION_NAME):
     """
     Индексирует чанки в Qdrant.
     """
@@ -189,7 +192,7 @@ def index_documents(chunks: list[Document], collection_name: str = "corporate_do
         return None
 
     embeddings = get_embeddings()
-    client = QdrantClient(host="localhost", port=6333)
+    client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
 
     # Определяем размерность динамически — не зашиваем число в код.
     # Это защитит от ошибки, если сменишь модель эмбеддингов
@@ -220,8 +223,19 @@ def delete_collection(collection_name: str):
     """
     Удаляет коллекцию из Qdrant.
     """
-    client = QdrantClient(host="localhost", port=6333)
+    client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
 
     if client.collection_exists(collection_name):
         client.delete_collection(collection_name)
         print(f"Коллекция {collection_name} удалена")
+    else:
+        print()
+
+def get_collections():
+    client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+    collections = client.get_collections()
+    return collections
+
+
+if __name__ == '__main__':
+    delete_collection('corporate_docs')
