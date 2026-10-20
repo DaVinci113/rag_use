@@ -1,13 +1,24 @@
 import os
+import sys
 
 from rag.ingestion import get_embeddings
 
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 
+import logging
+
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 QDRANT_HOST = os.getenv("QDRANT_HOST")
 QDRANT_PORT = os.getenv("QDRANT_PORT")
@@ -34,17 +45,17 @@ def main(question):
         k=5
     )
 
-    print(f"Вопрос: {question}")
-    print()
+    logger.info(f"Вопрос: {question}")
+    logger.info()
 
     for i, doc in enumerate(results, start=1):
-        print(f"[{i}] Источник: {doc.metadata.get('source')}")
-        print(f"Отдел: {doc.metadata.get('department')}")
-        print(doc.page_content[:300])
-        print("-" * 80)
+        logger.info(f"[{i}] Источник: {doc.metadata.get('source')}")
+        logger.info(f"Отдел: {doc.metadata.get('department')}")
+        logger.info(doc.page_content[:300])
+        logger.info("-" * 80)
 
     return results
 
 if __name__ == "__main__":
     user_question = input("Введите свой вопрос: ")
-    print(main(user_question))
+    logger.info(main(user_question))

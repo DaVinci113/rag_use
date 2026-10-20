@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 # Document — базовый класс LangChain для документа.
@@ -26,8 +27,18 @@ from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 
+import logging
+
 # Загрузка переменных окружения
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 load_dotenv()
 
@@ -96,12 +107,12 @@ def load_document(file_path: str) -> list[Document]:
     else:
         # Вместо исключения просто пропускаем неподдерживаемый файл —
         # так один "мусорный" файл не уронит всю индексацию
-        print(f"Пропускаем неподдерживаемый формат: {file_path}")
+        logger.info(f"Пропускаем неподдерживаемый формат: {file_path}")
         return []
 
 
 def load_all_documents(root_dir: str) -> list[Document]:
-    print("Загрузка всех документов...")
+    logger.info("Загрузка всех документов...")
     """
     Рекурсивно обходит папку и загружает все поддерживаемые документы.
     """
@@ -118,8 +129,8 @@ def load_all_documents(root_dir: str) -> list[Document]:
                     # Логируем ошибку и продолжаем работу со следующими файлами
                     print(f"Ошибка при загрузке {file_path}: {e}")
     except Exception as e:
-        print(e)
-    print("Завершение загрузки всех документов")
+        logger.error(e)
+    logger.info("Завершение загрузки всех документов")
     return documents
 
 
@@ -188,7 +199,7 @@ def index_documents(chunks: list[Document], collection_name: str = COLLECTION_NA
     Индексирует чанки в Qdrant.
     """
     if not chunks:
-        print("Чанков нет. Индексация пропущена.")
+        logger.info("Чанков нет. Индексация пропущена.")
         return None
 
     embeddings = get_embeddings()
@@ -214,7 +225,7 @@ def index_documents(chunks: list[Document], collection_name: str = COLLECTION_NA
     )
 
     vectorstore.add_documents(chunks)
-    print(f"Проиндексировано чанков: {len(chunks)} в коллекцию {collection_name}")
+    logger.info(f"Проиндексировано чанков: {len(chunks)} в коллекцию {collection_name}")
 
     return vectorstore
 
@@ -227,7 +238,7 @@ def delete_collection(collection_name: str):
 
     if client.collection_exists(collection_name):
         client.delete_collection(collection_name)
-        print(f"Коллекция {collection_name} удалена")
+        logger.info(f"Коллекция {collection_name} удалена")
     else:
         print()
 
@@ -238,4 +249,5 @@ def get_collections():
 
 
 if __name__ == '__main__':
-    delete_collection('corporate_docs')
+    print(get_collections())
+    # delete_collection('corporate_docs')

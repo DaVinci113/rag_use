@@ -1,8 +1,17 @@
 import os
+import sys
 
 from langchain_openai import ChatOpenAI
+import logging
 from dotenv import load_dotenv
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 load_dotenv()
 
@@ -17,4 +26,4 @@ chat = ChatOpenAI(
 )
 
 response = chat.invoke("hello")
-print(response.content)
+logger.debug(response)

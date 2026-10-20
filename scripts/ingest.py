@@ -8,9 +8,19 @@ from rag.ingestion import (
     index_documents,
 )
 
+import logging
+
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 def main():
@@ -19,27 +29,27 @@ def main():
     project_root = Path(__file__).resolve().parents[1]
     final_path = project_root.joinpath(path_data)
 
-    print(project_root)
+    logger.debug(f"path: {final_path}")
     documents = load_all_documents(str(final_path))
 
-    print(f"Загружено документов: {len(documents)}")
+    logger.info(f"Загружено документов: {len(documents)}")
 
     if len(documents) == 0:
-        print("Чанков нет. Индексация не запускается.")
+        logger.info("Чанков нет. Индексация не запускается.")
         return
 
-    print("Разбиение на чанки...")
+    logger.info("Разбиение на чанки...")
     chunks = split_documents(documents)
 
-    print(f"Получено чанков: {len(chunks)}")
+    logger.info(f"Получено чанков: {len(chunks)}")
 
-    print("Обогащение метаданных...")
+    logger.info("Обогащение метаданных...")
     chunks = enrich_metadata(chunks)
 
-    print("Индексация в Qdrant...")
+    logger.info("Индексация в Qdrant...")
     index_documents(chunks)
 
-    print("Готово.")
+    logger.info("Готово.")
 
 if __name__ == "__main__":
     main()
