@@ -1,3 +1,6 @@
+import os
+import sys
+from pathlib import Path
 from rag.ingestion import (
     load_all_documents,
     split_documents,
@@ -11,8 +14,13 @@ load_dotenv()
 
 
 def main():
-    print("Загрузка документов...")
-    documents = load_all_documents("data/raw")
+    path_data = "data/raw/"
+
+    project_root = Path(__file__).resolve().parents[1]
+    final_path = project_root.joinpath(path_data)
+
+    print(project_root)
+    documents = load_all_documents(str(final_path))
 
     print(f"Загружено документов: {len(documents)}")
 
