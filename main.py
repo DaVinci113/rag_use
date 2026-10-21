@@ -1,29 +1,37 @@
-import os
-import sys
+from contextlib import asynccontextmanager
 
-from langchain_openai import ChatOpenAI
-import logging
-from dotenv import load_dotenv
+import aiohttp
+import uvicorn
+from fastapi import FastAPI
+from fastapi import Request
+from contextlib import asynccontextmanager
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
-load_dotenv()
-
-model = os.getenv("LLM_MODEL")
-host = os.getenv("LLM_HOST")
-key = os.getenv("OPENAI_API_KEY")
-
-chat = ChatOpenAI(
-    model=model,
-    base_url=host,
-    api_key=key,
+app = FastAPI(
+    title="RAG Chat Bot",
+    description="RAG Chat Bot",
+    version="1.0",
+    # lifespan=lifespan,
 )
 
-response = chat.invoke("hello")
-logger.debug(response)
+
+@asynccontextmanager
+async def lifespan():
+    async with aiohttp.ClientSession() as session:
+        app.state.session = session
+        app.state.agent = Agent(session=session)
+        yield
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+
+@app.post("/chat")
+async def chat(request: Request):
+    return {"message": f"{request.body}"}
+
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=8000)
