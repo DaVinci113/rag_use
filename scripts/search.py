@@ -1,14 +1,9 @@
+import logging
 import os
 import sys
 
-from rag.ingestion import get_embeddings
-
-from langchain_qdrant import QdrantVectorStore
-from qdrant_client import QdrantClient
-
-import logging
-
 from dotenv import load_dotenv
+from langchain_qdrant import QdrantVectorStore
 
 load_dotenv()
 
@@ -25,36 +20,20 @@ QDRANT_PORT = os.getenv("QDRANT_PORT")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 
-def search_in_rag(question):
-
-    client = QdrantClient(
-        host=QDRANT_HOST,
-        port=QDRANT_PORT
-    )
-
-    embeddings = get_embeddings()
+def search_in_rag(question, qdrant_client, embeddings):
 
     vectorstore = QdrantVectorStore(
-        client=client,
+        client=qdrant_client,
         collection_name=COLLECTION_NAME,
         embedding=embeddings,
     )
 
-    results = vectorstore.similarity_search(
-        query=question,
-        k=5
-    )
+    results = vectorstore.similarity_search_with_score(query=question, k=5)
+    filtered = [(doc, score) for doc, score in results if score > 0.3]
 
-    logger.info(f"Вопрос: {question}")
+    logger.info(f'filtered raw rag data: {len(filtered)}')
 
-    for i, doc in enumerate(results, start=1):
-        logger.info(f"[{i}] Источник: {doc.metadata.get('source')}")
-        logger.info(f"Отдел: {doc.metadata.get('department')}")
-        logger.info(doc.page_content[:300])
-        logger.info("-" * 80)
-
-    return results
+    return filtered
 
 if __name__ == "__main__":
     user_question = input("Введите свой вопрос: ")
-    logger.info(search_in_rag(user_question))

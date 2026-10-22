@@ -1,10 +1,9 @@
+import logging
+import os
 import sys
-import json
 
 import aiohttp
-import os
 from dotenv import load_dotenv
-import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -19,7 +18,7 @@ load_dotenv()
 def _get_env(name):
     values = os.getenv(name)
     if not values:
-        raise RuntimeError("No {} environment variable is set".format(name))
+        raise RuntimeError(f"No {name} environment variable is set")
     return values
 
 

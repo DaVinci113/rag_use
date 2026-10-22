@@ -1,21 +1,18 @@
+import logging
 import os
 import sys
 from pathlib import Path
+
+# docx2txt — извлечение текста из .docx файлов
+import docx2txt
+
+# Загрузка переменных окружения
+from dotenv import load_dotenv
 
 # Document — базовый класс LangChain для документа.
 # Импортируется из langchain_core (стабильное ядро, НЕ deprecated).
 # Содержит два поля: page_content (текст) и metadata (словарь метаданных)
 from langchain_core.documents import Document
-
-# PdfReader — чтение PDF напрямую через pypdf.
-# Легче и быстрее, чем PyPDFLoader из langchain-community
-from pypdf import PdfReader
-
-# docx2txt — извлечение текста из .docx файлов
-import docx2txt
-
-# Сплиттер для чанкинга — из актуального отдельного пакета
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # Локальные эмбеддинги через HuggingFace (как договаривались ранее)
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -23,14 +20,16 @@ from langchain_huggingface import HuggingFaceEmbeddings
 # Интеграция LangChain + Qdrant — отдельный актуальный пакет
 from langchain_qdrant import QdrantVectorStore
 
+# Сплиттер для чанкинга — из актуального отдельного пакета
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# PdfReader — чтение PDF напрямую через pypdf.
+# Легче и быстрее, чем PyPDFLoader из langchain-community
+from pypdf import PdfReader
+
 # Клиент и модели Qdrant
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
-
-import logging
-
-# Загрузка переменных окружения
-from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
