@@ -52,8 +52,8 @@ class Agent:
         return {
             'model': self.model,
             'messages': [
+                {'role': 'system', 'content': self.system_prompt},
                 {'role': 'user', 'content': final_prompt},
-                {'role': 'system', 'content': self.system_prompt}
             ]
         }
 
@@ -76,7 +76,9 @@ async def ai_response(
 ):
     try:
         async with session.post(url, headers=headers, json=json) as response:
-            return await response.json()
+            result = await response.json()
+            logger.info(f'Ответ LLM: {result}')
+            return result
     except aiohttp.ClientError as e:
         logger.error(e)
         return e
