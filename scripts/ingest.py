@@ -1,16 +1,15 @@
-import os
+import logging
 import sys
 from pathlib import Path
-from rag.ingestion import (
-    load_all_documents,
-    split_documents,
-    enrich_metadata,
-    index_documents,
-)
-
-import logging
 
 from dotenv import load_dotenv
+
+from rag.ingestion import (
+    enrich_metadata,
+    index_documents,
+    load_all_documents,
+    split_documents,
+)
 
 load_dotenv()
 
