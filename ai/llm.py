@@ -77,7 +77,7 @@ async def ai_response(
     try:
         async with session.post(url, headers=headers, json=json) as response:
             result = await response.json()
-            logger.info(f'Ответ LLM: {result}')
+            logger.debug(f'Ответ LLM: {result}')
             return result
     except aiohttp.ClientError as e:
         logger.error(e)
