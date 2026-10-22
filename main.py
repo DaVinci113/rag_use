@@ -1,3 +1,5 @@
+import os
+
 import aiohttp
 import uvicorn
 from fastapi import FastAPI
@@ -24,7 +26,9 @@ logger.addHandler(handler)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info('Запуск приложения: инициализация aiohttp сессии и LLM агента...')
-    async with aiohttp.ClientSession() as session:
+    llm_time_limit = os.getenv("LLM_TIMELIMIT", 60)
+    llm_time_limit = aiohttp.ClientTimeout(total=int(llm_time_limit))
+    async with aiohttp.ClientSession(timeout=llm_time_limit) as session:
         app.state.session = session
         app.state.agent = Agent(session=session)
         yield
