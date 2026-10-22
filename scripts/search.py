@@ -25,7 +25,7 @@ QDRANT_PORT = os.getenv("QDRANT_PORT")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 
-def main(question):
+def search_in_rag(question):
 
     client = QdrantClient(
         host=QDRANT_HOST,
@@ -46,7 +46,6 @@ def main(question):
     )
 
     logger.info(f"Вопрос: {question}")
-    logger.info()
 
     for i, doc in enumerate(results, start=1):
         logger.info(f"[{i}] Источник: {doc.metadata.get('source')}")
@@ -58,4 +57,4 @@ def main(question):
 
 if __name__ == "__main__":
     user_question = input("Введите свой вопрос: ")
-    logger.info(main(user_question))
+    logger.info(search_in_rag(user_question))
