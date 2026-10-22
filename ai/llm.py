@@ -35,12 +35,12 @@ class Agent:
         self.api_key = _get_env("OPENAI_API_KEY")
         self.timelimit = _get_env("LLM_TIMELIMIT")
         self.system_prompt = _get_env("SYSTEM_PROMPT")
-        self.api_key = _get_env("UNSLOTH_API_KEY")
+        self.model_api_key = _get_env("MODEL_API_KEY")
 
     def _build_headers(self):
         return {
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self.api_key}',
+            'Authorization': f'Bearer {self.model_api_key}',
         }
 
     def _build_json(self, question, rag_response):
